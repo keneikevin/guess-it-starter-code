@@ -1,30 +1,60 @@
+/*
+ * Copyright 2018, The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.example.android.guesstheword.screens.game
 
-import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class GameViewModel :ViewModel(){
+
+/**
+ * ViewModel containing all the logic needed to run the game
+ */
+class GameViewModel : ViewModel() {
+
     // The current word
-     var word = MutableLiveData<String>()
+    private val _word = MutableLiveData<String>()
+    val word: LiveData<String>
+        get() = _word
+
 
     // The current score
-     var score = MutableLiveData<Int>()
+    private val _score = MutableLiveData<Int>()
+    val score: LiveData<Int>
+        get() = _score
+    // TODO (01) Make a properly encapsulated LiveData called eventGameFinish that holds a
+    // boolean
+    private val _eventGameFinish= MutableLiveData<Boolean>()
+    val eventGameFinish: LiveData<Boolean>
+    get() = _eventGameFinish
 
     // The list of words - the front of the list is the next word to guess
     private lateinit var wordList: MutableList<String>
-    init {
 
+
+
+    init {
+        _eventGameFinish.value=false
         resetList()
         nextWord()
-        score.value =0
-        word.value=""
+        _score.value = 0
+
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        Log.i("GameViewModel","GameViewModeldestroyed!")
-    }
     /**
      * Resets the list of words and randomizes the order
      */
@@ -61,22 +91,29 @@ class GameViewModel :ViewModel(){
     private fun nextWord() {
         //Select and remove a word from the list
         if (wordList.isEmpty()) {
-            //gameFinished()
+            // gameFinished() should happen here
+            // TODO (03) Set eventGameFinish to true, to signify that the game is over
+            _eventGameFinish.value=true
         } else {
-            word.value = wordList.removeAt(0)
+            _word.value = wordList.removeAt(0)
         }
-
     }
+
     /** Methods for buttons presses **/
 
-     fun onSkip() {
-        score.value= (score.value)?.minus(1)
+    fun onSkip() {
+        _score.value = (_score.value)?.minus(1)
         nextWord()
     }
 
     fun onCorrect() {
-        score.value= (score.value)?.plus(1)
+        _score.value = (_score.value)?.plus(1)
         nextWord()
     }
 
+    // TODO (02) Make the function onGameFinishComplete which makes the value of eventGameFinish
+    // false
+    fun onGameFinishComplete(){
+        _eventGameFinish.value = false
+    }
 }
